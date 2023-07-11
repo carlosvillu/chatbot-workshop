@@ -9,6 +9,9 @@ import type {
 import type {Question} from '../../embbeders/Models/Question.js'
 import {Results} from '../Models/Results.js'
 
+/**
+ * 4.- No olvides poner tus credenciales de Pinecone en el archivo .env o vas a tener un error
+ * */
 const {PINECONE_API_KEY = '', PINECONE_ENVIRONMENT = ''} = process.env
 const log = debug('workshop:consumer:vectorstores:PineconeProvider')
 
@@ -47,14 +50,18 @@ export class PineconeProvider {
   ) {}
 
   async search(question: Question): Promise<Results | null> {
+    /**
+     * 5.- Simplemente usamos el cliente NodeJS de Pinecone para hacer una query.
+     *     https://docs.pinecone.io/docs/node-client#indexquery
+     * */
     const queryResponse = await this.index
       .query({
         queryRequest: {
           namespace: this.namespace,
-          topK: PineconeProvider.DOCS_BY_QUERY,
+          topK: PineconeProvider.DOCS_BY_QUERY, // Aquí le decimos que nos devuelva los 4 más proximos. Y hemos elegido 4 porque 3 es poco y 5 mucho.
           includeValues: true,
           includeMetadata: true,
-          vector: question.vector
+          vector: question.vector // Aquí le pasamos el vector de la pregunta y usando la distancia del coseno con cada vector guardado nos va a devolver los 4 más proximos. Que además son los 4 semánticamente más proximos.
         }
       })
       .catch((error: Error) => log(`❌ ${error.message}`))
@@ -63,6 +70,10 @@ export class PineconeProvider {
       return null
     }
 
+    /**
+     * 6.- Estamos creando un modelo que encapsula los textos devueltos por la query. Desde este punto ya no necesitamos los vecotres, solo los textos. y la URL.
+     *     Los vectores han complido su función. que era la de encontrar los documentos más proximos.
+     * */
     const results = Results.create(
       // @ts-expect-error
       queryResponse.matches.map((match: ScoredVector) => match?.metadata?.text),
