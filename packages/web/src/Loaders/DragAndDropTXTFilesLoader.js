@@ -28,6 +28,12 @@ export class DragAndDropTXTFilesLoader extends EventEmitter {
     })
   }
 
+  /**
+   *
+   * 2.- Fijate que todo esto es lo mismo que ya hemos visto en la seccion de Ingest. Incluso el metodo split y el parse.
+   *     Al final no cambia el loader ya venta de la lectura de un directorio o de un archivo arrastrado al browser.
+   *
+   * */
   async _loadFiles(files) {
     const allowFiles = Array.from(files).filter( file => file.type === DragAndDropTXTFilesLoader.ALLOW_TYPE ) // eslint-disable-line
 
@@ -41,6 +47,12 @@ export class DragAndDropTXTFilesLoader extends EventEmitter {
     })
 
     const docs = pages.map(doc => this._split(doc)).flat(Infinity)
+
+    /**
+     *
+     * 3.- Emitimos los documentos que al final acaba siendo un documento por cada párrado de noticia.
+     *
+     * */
     this.emit('documents', docs)
   }
 

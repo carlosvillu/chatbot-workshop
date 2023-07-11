@@ -20,10 +20,13 @@ export class HFChat {
 
   async chat(question, results) {
     this._el.innerHTML += `<p><mark>${question.question}</mark></p>`
+    /**
+     * 20 .- El chat lo hacemos en LOCAL !!!, aunque es verdad que es un poco 💩 la verdad. Pero dadle tiempo y que WebGPU funcione con todos los modelos.
+     * */
     const generator = await pipeline('question-answering', HFChat.MODEL) // eslint-disable-line
     const {answer: text} = await generator(
-      question.question,
-      results.map(result => result.record.metadata.text).join('. ')
+      question.question, // aquí pasamos la pregunta
+      results.map(result => result.record.metadata.text).join('. ') // y aquí pasamos todos los textos de las noticias que hemos encontrado. No es exactamente igual que lo del consumer, pero la idea es la misma No es exactamente igual que lo del consumer, pero la idea es la misma
     )
     log(`🔃 generated text: ${text}`)
     this._el.innerHTML += `<p>${text}</p>`

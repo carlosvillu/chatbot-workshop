@@ -1,4 +1,8 @@
 // https://www.npmjs.com/package/compute-cosine-similarity
+/**
+ *
+ * 16 .- No es nada especial, solo calculo la distancia cosenoidal entre el vector del resultado y el vector de la pregunta.
+ * */
 import similarity from 'https://esm.sh/compute-cosine-similarity'
 
 export class Result {
@@ -15,6 +19,9 @@ export class Result {
   constructor(question, record) {
     this._question = question
     this._record = record
+    /**
+     * 17 .- Y luego guardo la distancia en una propiedad privada.
+     * */
     this._distance = this._calculateDistance(
       this._question.vector,
       this._record.values
