@@ -19,7 +19,10 @@ interface Handlers {
 
 export class ChatOpenAI extends EventEmitter {
   static DONE = '[DONE]'
-  static MODEL = 'gpt-4'
+  /**
+   * 4.- Vamos de los mismo config para la API de OpenAI nada nuevo.
+   * */
+  static MODEL = 'gpt-4' // esto si es nuevo :) ... aquí puede cambiar el modelo de OpenAI puede ser gpt-3.5-turbo o gpt-4 (GPT-4 de lejos da mejores resultados, pero es mucho más caro y lento)
   static OPTIONS = {
     hostname: 'api.openai.com',
     port: 443,
@@ -27,10 +30,14 @@ export class ChatOpenAI extends EventEmitter {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${OPENAI_API_KEY}`
+      Authorization: `Bearer ${OPENAI_API_KEY}` // Recuerda el fichero .env
     }
   }
 
+  /**
+   * 5.- Y aquí tenemos al PROMPT !!! ( hay gente que gana un pastizal solo escribiendo estas cosas )
+   *     Aquí solo están las Instrucciones para el bot.
+   * */
   static PROMPT = `
     Actua como ElPaisGPT, eres un bot conversacional que estas especializado en responder preguntas que el usuario te va a realizar proporcionandote fragmentos de noticias.
     Usa los fragmentos de las noticas que te van a proporcionar entre ### y ### como contexto para dar una respuesta coherente. Si el contexto no es suficiente para dar
@@ -51,6 +58,9 @@ export class ChatOpenAI extends EventEmitter {
 
   static create(handlers: Handlers): ChatOpenAI {
     return new ChatOpenAI(handlers, [
+      /**
+       * 6.- Aquí tenemos el primer mensaje que va a ver chatGPT, donde le estamos indicand como queremos que actue, gracias a las indicaciones del PROMPT
+       * */
       {role: 'system', content: ChatOpenAI.PROMPT}
     ])
   }
@@ -66,6 +76,11 @@ export class ChatOpenAI extends EventEmitter {
       handlers.onToken(data)
     })
     this.on('end', () => {
+      /**
+       *
+       * 9 .- Por ultimo a la lista de mensajes le agregamos la respuesta del propio bot. Así cuando hagamos una siguiente pregunta, tb sabrá lo nos ha respondido anteriormente.
+       *
+       * */
       this.messages.push({role: 'assistant', content: '' + this.partial})
       this.partial = ''
       this.handlers.onEnd()
@@ -74,6 +89,13 @@ export class ChatOpenAI extends EventEmitter {
 
   async ask(question: Question, snippets: Results): Promise<void> {
     let res: () => void = () => {}
+
+    /**
+     * 7.- Aquí tenemos los mensajes que le vamos a enviar a chatGPT como usuario. Imaginate que estas escribiendo esto en la web de chatGPT.
+     *     Si te fijas bien le estas pasando la pregunta y el contexto para esa pregunta.
+     *
+     *     Ha sido un largo camino solo para poder escribir esta cosita.
+     * */
     const userPrompt = `
       Hola ElPaisGPT, me gustaría saber ${question.question}.
       Por favor basa tu respuesta en los siguientes fragmentos de noticias:
@@ -112,6 +134,13 @@ export class ChatOpenAI extends EventEmitter {
     )
     req.write(
       JSON.stringify({
+        /**
+         * 8.- Esta vez si es interesante que te fijes en la parte de la request. Fijate que le estamos pasando TODOS los mensajes anteriores y el que acabamos de contruir.
+         *     Esto significa que chatGPT va a tener en cuenta todo lo que le hemos dicho hasta ahora para responder a nuestra pregunta.
+         *     TENEMOS MEMÓRIA !!! 🧠🧠🧠
+         *
+         *     OJO con la memoria, si le pasas demasiado texto te puede devolver un error la API. La gestión de la memoria es un tema muy importante en los modelos de lenguaje. y Muy complejo.
+         * */
         messages: [...this.messages, {role: 'user', content}],
         model: ChatOpenAI.MODEL,
         stream: true
