@@ -5,7 +5,6 @@ import {promises as fs} from 'node:fs'
 
 import {TXTFolderLoader} from './documents/Loaders/TXTFolderLoader.js'
 import {OpenAIEmbedder} from './embbeders/openai/index.js'
-import {PineconeProvider} from './vectorstores/Providers/Pinecone.js'
 
 const log = debug('workshop:ingest:main')
 
@@ -24,9 +23,32 @@ await fs.access(data).catch(() => {
 
 const docs = await TXTFolderLoader.create(data).loadAndSplit()
 
+/**
+ * 1.- Ahora pongamos el foco en el embedding.
+ *     En la rama anterios vimos como partiendo de solo 3 noticias llegamos a generar 46 documentos que están como
+ *     array en la variable `docs`
+ *     Ahora vamos a generar los embeddings de cada documento. Para ello vamos a usar la clase `OpenAIEmbedder` y usaremos
+ *     un modelo de OpenAI para generar los embeddings. LLamando a la API de OpenAI internamente. (NECESITAS la API KEY de OpenAI)
+ * */
 const embedder = OpenAIEmbedder.create(docs)
-const vectorstore = await PineconeProvider.create('chatbot')
 
+/**
+ *
+ * 2.- Esta es una función un poco especial, es una generador asíncrono, es decir, es una función que se puede iterar y en cada iteración no va
+ *     a devolver un array con bloques de 10 embeddings de los 46 con los que hemos inicializado la clase.
+ *
+ * */
 for await (const embeddings of embedder.embeddings()) {
-  await vectorstore.save(embeddings)
+  /**
+   * 9.- Fijate como en la consola los logs van saliendo de 10 en 10.
+   * */
+  log(`📦 Vector: ${embeddings[0].vector.length}`)
+  log(`📄 Text: ${embeddings[0].doc.text}`)
+  log(`📦 Embeddings: ${embeddings.length} `)
+
+  /**
+   * 10 .- Un vector no es más que un array de logitud 1536 y un montón de números.
+   * Si solo fueran 3 podríamos representarlos en una cubo, pero como son 1536 nos lo tenemos que imaginar :P
+   * */
+  // log(`📦 Vector: ${embeddings[0].vector.toString()}`)
 }
