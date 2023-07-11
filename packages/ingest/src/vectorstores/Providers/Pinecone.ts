@@ -39,6 +39,12 @@ export class PineconeProvider {
   ) {}
 
   async save(embeddings: Embedding[]): Promise<void> {
+    /**
+     * 3.- Convertimos cada uno de los embeddings en un Registro.
+     *     Básicamente un registro es un Modelo que contiene un ID aleatorio (Recueda que no buscamos por ID), un vector, el texto que ha generado ese vector y la URL del documento.
+     *     Los registros que guardamos en la vector store, pueden contener cualquier información pero como mínimo deben contener un vector y el texto que los ha generado.
+     *     En este caso estoy guardando tambien la URL de la noticia para poder mostrarla en el chat como parte de la respuesta del bot.
+     * */
     const records = embeddings.map(embedding => {
       return Record.create(ulid(), embedding.vector, {
         text: embedding.doc.text,
@@ -46,11 +52,15 @@ export class PineconeProvider {
       })
     })
 
+    /**
+     * 4.- Solo la forma que tiene la librería de NodeJS de guardar un registro en Pinecone.
+     *     https://docs.pinecone.io/docs/node-client#indexupsert
+     * */
     await this.index
       .upsert({
         upsertRequest: {
           vectors: records.map(record => record.toJSON()),
-          namespace: this.namespace
+          namespace: this.namespace // El namespace es algo especial de Pinecone y nos permite agrupar grupos de registros. Es útil para separar los registros de entrenamiento de los de producción por ejemplo.
         }
       })
       .then(() =>
