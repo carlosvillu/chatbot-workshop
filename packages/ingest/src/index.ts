@@ -4,8 +4,6 @@ import debug from 'debug'
 import {promises as fs} from 'node:fs'
 
 import {TXTFolderLoader} from './documents/Loaders/TXTFolderLoader.js'
-import {OpenAIEmbedder} from './embbeders/openai/index.js'
-import {PineconeProvider} from './vectorstores/Providers/Pinecone.js'
 
 const log = debug('workshop:ingest:main')
 
@@ -22,11 +20,23 @@ await fs.access(data).catch(() => {
   process.exit(1)
 })
 
+/**
+ *
+ * 1.- El Objetivo de esta linea es crear una lista de documentos a partir de un directorio
+ *    - El directorio debe contener archivos .txt
+ *    - Cada archivo .txt debe contener una noticia.
+ *    - Le pasamos al constructor del `Loader` el path absolutos del directorio que contiene las noticias.
+ * */
 const docs = await TXTFolderLoader.create(data).loadAndSplit()
 
-const embedder = OpenAIEmbedder.create(docs)
-const vectorstore = await PineconeProvider.create('chatbot')
+log(` - ${docs.map(doc => doc.text).join('\n  - ')}`)
 
-for await (const embeddings of embedder.embeddings()) {
-  await vectorstore.save(embeddings)
-}
+/**
+ * 7.- Al final partiendo de solo 3 notcias llegamos a generar 46 Documentos.
+ *   - Cada documento es un párrafo de una noticia.
+ *   - No hay una regla fija sobre como partir un documentos es más arte que ciencia. Tal vez el origen del documento
+ *   Sea código fuente, en ese caso no podemos partirlo por salto de linea y tendríamos que buscar otra estrategia.
+ *
+ * */
+
+log(`✅ ${docs.length} documents loaded.`)
