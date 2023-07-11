@@ -19,7 +19,7 @@ interface Handlers {
 
 export class ChatOpenAI extends EventEmitter {
   static DONE = '[DONE]'
-  static MODEL = 'gpt-3.5-turbo'
+  static MODEL = 'gpt-4'
   static OPTIONS = {
     hostname: 'api.openai.com',
     port: 443,

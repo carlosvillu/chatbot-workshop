@@ -5,7 +5,7 @@ import EventEmitter from 'https://esm.sh/eventemitter3'
 const log = debug('workshop:web:Audio:HFAudio')
 
 export class HFAudio extends EventEmitter {
-    static get MODEL() { return 'Xenova/whisper-medium'} // eslint-disable-line
+    static get MODEL() { return 'Xenova/whisper-small'} // eslint-disable-line
   static get OPTIONS() {return {mimeType: 'audio/webm'} } // eslint-disable-line
 
   static create() {
