@@ -1,0 +1,34 @@
+###
+#
+# Estamos levantado 2 servicios conectados entre ellos.
+# 1.- La base de datos donde vamos a guardar todos los vectores de embedding que hemos generado en el paso anterior.
+#     más info: https://www.trychroma.com/
+# 2.- Una UI simple para ver que estamos guardando nuestros embedding.
+#     Cuando estés en la configuración de ChromaUI, la bd de Chroma la puedes encontrar en http://chroma:8000 y accedemos sin auth.
+#
+####
+version: '3.9'
+services:
+  chroma:
+    image: chromadb/chroma:latest
+    environment:
+      - ALLOW_RESET=true
+    ports:
+      - 8000:8000
+    networks:
+      - shared
+
+  chromaUI:
+    image: fengzhichao/chromadb-admin
+    ports:
+      - 3000:3000
+    networks:
+      - shared
+    depends_on:
+      - chroma
+
+networks:
+  shared:
+
+volumes:
+  chroma-data:
