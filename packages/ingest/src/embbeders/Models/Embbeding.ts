@@ -11,9 +11,7 @@ export class Embedding {
 
     // @ts-expect-error
     if (vector.length !== 1024 || vector.length !== 1536) {
-      throw new Error(
-        `[Embedding.value] Invalid vector length (${vector.length})`
-      )
+      throw new Error(`[Embedding.value] Invalid vector length (${vector.length})`)
     }
   }
 
@@ -21,8 +19,5 @@ export class Embedding {
     return new Embedding(vector, doc)
   }
 
-  constructor(
-    public readonly vector: number[],
-    public readonly doc: Document
-  ) {}
+  constructor(public readonly vector: number[], public readonly doc: Document) {}
 }

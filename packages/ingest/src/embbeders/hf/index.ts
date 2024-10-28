@@ -6,11 +6,7 @@ import type {Document} from '../../documents/Models/Document.js'
 import {Embedding} from '../Models/Embbeding.js'
 
 const chunk = <T>(arr: T[], size: number): T[][] =>
-  arr.reduce(
-    (acc: T[][], _, i) =>
-      i % size !== 0 ? acc : [...acc, arr.slice(i, i + size)],
-    []
-  )
+  arr.reduce((acc: T[][], _, i) => (i % size !== 0 ? acc : [...acc, arr.slice(i, i + size)]), [])
 const log = debug('workshop:ingest:Embbeders:HFEmbedder')
 
 export class HFEmbedder {
@@ -32,10 +28,7 @@ export class HFEmbedder {
 
   async *embeddings(): AsyncGenerator<Embedding[]> {
     let counter = 0
-    const generateEmbeddings = await pipeline(
-      'feature-extraction',
-      HFEmbedder.MODEL
-    )
+    const generateEmbeddings = await pipeline('feature-extraction', HFEmbedder.MODEL)
 
     const chunksOfDocs = chunk(this.docs, HFEmbedder.CHUNKS_LEGTH)
     for (const docs of chunksOfDocs) {

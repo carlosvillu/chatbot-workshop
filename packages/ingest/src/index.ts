@@ -4,12 +4,14 @@ import debug from 'debug'
 import {promises as fs} from 'node:fs'
 
 import {TXTFolderLoader} from './documents/Loaders/TXTFolderLoader.js'
+import {OllamaEmbedder} from './embbeders/ollama/index.js'
 import {OpenAIEmbedder} from './embbeders/openai/index.js'
+import {ChromaProvider} from './vectorstores/Providers/Chroma.js'
 import {PineconeProvider} from './vectorstores/Providers/Pinecone.js'
 
 const log = debug('workshop:ingest:main')
 
-const ALLOW_PROVIDERS = ['openai', 'hf']
+const ALLOW_PROVIDERS = ['openai', 'ollama', 'hf']
 const [, , ...args] = process.argv
 const [provider, data] = args
 
@@ -24,28 +26,30 @@ await fs.access(data).catch(() => {
 
 const docs = await TXTFolderLoader.create(data).loadAndSplit()
 
-const embedder = OpenAIEmbedder.create(docs)
+const embedder = provider === 'ollama' ? OllamaEmbedder.create(docs) : OpenAIEmbedder.create(docs)
+
 /**
- * 2.- Aquí va el nombre del Indice que has creado en Pinecone
+ * 2.- Aquí va el nombre del Indice que ha de crear Chroma
  * */
-const vectorstore = await PineconeProvider.create('chatbot')
+const vectorstore =
+  provider === 'ollama' ? await ChromaProvider.create('chatbot') : await PineconeProvider.create('chatbot')
 
 for await (const embeddings of embedder.embeddings()) {
   /**
    * 1 .- De la rama anterior conseguimos pasar de los documentos a los embeddings
-   *      Ahora nos toca guardar los embeddings en el vectorstore. En este caso Pinecone.
+   *      Ahora nos toca guardar los embeddings en el vectorstore. En este caso ChromaDB.
    *
-   *      Para ello necesitamos crear una cuenta en Pinecone y crear un vectorstore.
-   *      https://app.pinecone.io/?sessionType=signup
+   *      Para ello necesitamos levantar la bbdd en local usando docker compose
+   *      $ docker compose up
    *
-   *      Una vez creada la cuenta tienes que crear un Indice. Es importante recordar el nombre del Indice. lo tienes que en punto 2.
-   *      Cuando tengas el índice creado tienes que escribir en el fichero .env el API_KEY y el Environment
+   *      Una vez levantado el entorno tenemos que visitar http://localhost:3000
+   *
    * */
   await vectorstore.save(embeddings)
 }
 
 /**
- *  5.- Listo ya lo has logrado, has guardado 46 vectores en la BD de Pinecone. 🥳🥳🥳🥳🥳
+ *  5.- Listo ya lo has logrado, has guardado 46 vectores en la BD de Chroma. 🥳🥳🥳🥳🥳
  *
  *  Recuerda: Texto -> Document -> Embedding -> Registro-> VectorStore
  * */

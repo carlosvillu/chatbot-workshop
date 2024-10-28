@@ -6,11 +6,7 @@ import {Embedding} from '../Models/Embbeding.js'
 
 const {OPENAI_API_KEY = 'sk-'} = process.env
 const chunk = <T>(arr: T[], size: number): T[][] =>
-  arr.reduce(
-    (acc: T[][], _, i) =>
-      i % size !== 0 ? acc : [...acc, arr.slice(i, i + size)],
-    []
-  )
+  arr.reduce((acc: T[][], _, i) => (i % size !== 0 ? acc : [...acc, arr.slice(i, i + size)]), [])
 const log = debug('workshop:ingest:Embbeders:OpenAIEmbedder')
 
 export class OpenAIEmbedder {
@@ -29,9 +25,7 @@ export class OpenAIEmbedder {
 
   static validate(docs: Document[]): void {
     if (!Array.isArray(docs)) {
-      throw new Error(
-        `[OpenAIEmbedder.validate] Invalid docs type ${typeof docs}`
-      )
+      throw new Error(`[OpenAIEmbedder.validate] Invalid docs type ${typeof docs}`)
     }
   }
 
@@ -48,11 +42,9 @@ export class OpenAIEmbedder {
     for (const docs of chunksOfDocs) {
       const response = await this.request(docs)
       const json = JSON.parse(response)
-      const vectors = json?.data?.map(
-        (emb: {embedding: number[]}, index: number) => {
-          return Embedding.create(emb.embedding, docs[index])
-        }
-      )
+      const vectors = json?.data?.map((emb: {embedding: number[]}, index: number) => {
+        return Embedding.create(emb.embedding, docs[index])
+      })
       counter = counter + docs.length
       log(`🔃 ${counter}/${this.docs.length} Documents vectors`)
       yield vectors

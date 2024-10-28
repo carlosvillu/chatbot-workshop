@@ -13,16 +13,11 @@ const log = debug('workshop:ingest:vectorstores:PineconeProvider')
 export class PineconeProvider {
   static validate(index: string): void {
     if (typeof index !== 'string') {
-      throw new Error(
-        `[PineconeProvider.validate] Invalid index type ${typeof index}`
-      )
+      throw new Error(`[PineconeProvider.validate] Invalid index type ${typeof index}`)
     }
   }
 
-  static async create(
-    index: string,
-    namespace: string = ulid()
-  ): Promise<PineconeProvider> {
+  static async create(index: string, namespace: string = ulid()): Promise<PineconeProvider> {
     PineconeProvider.validate(index)
     const client = new PineconeClient()
     await client.init({
@@ -33,10 +28,7 @@ export class PineconeProvider {
     return new PineconeProvider(client.Index(index), namespace)
   }
 
-  constructor(
-    private readonly index: VectorOperationsApi,
-    private readonly namespace: string
-  ) {}
+  constructor(private readonly index: VectorOperationsApi, private readonly namespace: string) {}
 
   async save(embeddings: Embedding[]): Promise<void> {
     /**
@@ -63,9 +55,7 @@ export class PineconeProvider {
           namespace: this.namespace // El namespace es algo especial de Pinecone y nos permite agrupar grupos de registros. Es útil para separar los registros de entrenamiento de los de producción por ejemplo.
         }
       })
-      .then(() =>
-        log(`💾 Saved ${records.length} vectors to ${this.namespace}`)
-      )
+      .then(() => log(`💾 Saved ${records.length} vectors to ${this.namespace}`))
       .catch((error: Error) => log(`❌ ${error.message}`))
   }
 }

@@ -2,12 +2,16 @@
   "name": "ingest",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": 22
+  },
   "scripts": {
     "start": "DEBUG=workshop:* NODE_NO_WARNINGS=1 node --loader ts-node/esm src/index.ts"
   },
   "dependencies": {
     "@pinecone-database/pinecone": "^0.1.6",
     "@xenova/transformers": "^2.3.1",
+    "chromadb": "^1.9.2",
     "fast-glob": "^3.3.0",
     "ulid": "^2.3.0"
   },
