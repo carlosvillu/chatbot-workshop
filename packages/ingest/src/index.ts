@@ -4,11 +4,12 @@ import debug from 'debug'
 import {promises as fs} from 'node:fs'
 
 import {TXTFolderLoader} from './documents/Loaders/TXTFolderLoader.js'
+import {OllamaEmbedder} from './embbeders/ollama/index.js'
 import {OpenAIEmbedder} from './embbeders/openai/index.js'
 
 const log = debug('workshop:ingest:main')
 
-const ALLOW_PROVIDERS = ['openai', 'hf']
+const ALLOW_PROVIDERS = ['openai', 'ollama', 'hf']
 const [, , ...args] = process.argv
 const [provider, data] = args
 
@@ -27,10 +28,10 @@ const docs = await TXTFolderLoader.create(data).loadAndSplit()
  * 1.- Ahora pongamos el foco en el embedding.
  *     En la rama anterios vimos como partiendo de solo 3 noticias llegamos a generar 46 documentos que están como
  *     array en la variable `docs`
- *     Ahora vamos a generar los embeddings de cada documento. Para ello vamos a usar la clase `OpenAIEmbedder` y usaremos
- *     un modelo de OpenAI para generar los embeddings. LLamando a la API de OpenAI internamente. (NECESITAS la API KEY de OpenAI)
+ *     Ahora vamos a generar los embeddings de cada documento. Para ello vamos a usar la clase `OllamaEmbedder` y usaremos
+ *     modelo local cargado mediante OLLAMA (https://ollama.com/) [ VUELTA A LA SLIDES ]
  * */
-const embedder = OpenAIEmbedder.create(docs)
+const embedder = provider === 'ollama' ? OllamaEmbedder.create(docs) : OpenAIEmbedder.create(docs)
 
 /**
  *
@@ -47,8 +48,8 @@ for await (const embeddings of embedder.embeddings()) {
   log(`📦 Embeddings: ${embeddings.length} `)
 
   /**
-   * 10 .- Un vector no es más que un array de logitud 1536 y un montón de números.
-   * Si solo fueran 3 podríamos representarlos en una cubo, pero como son 1536 nos lo tenemos que imaginar :P
+   * 10 .- Un vector no es más que un array de logitud 768 y un montón de números.
+   * Si solo fueran 3 podríamos representarlos en una cubo, pero como son 768 nos lo tenemos que imaginar :P
    * */
   // log(`📦 Vector: ${embeddings[0].vector.toString()}`)
 }

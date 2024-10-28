@@ -13,5 +13,6 @@
   },
   "devDependencies": {
     "base": "*"
-  }
+  },
+  "engines": {"node": 22}
 }
