@@ -4,7 +4,8 @@ import 'dotenv/config'
 
 import debug from 'debug'
 
-import {OpenAIEmbedder} from './embbeders/openai/index.js'
+import {OllamaEmbedder} from './embbeders/ollama/index.js'
+// import {OpenAIEmbedder} from './embbeders/openai/index.js'
 
 const log = debug('workshop:consumer:main')
 
@@ -17,7 +18,7 @@ const log = debug('workshop:consumer:main')
  * */
 const [, , q] = process.argv
 
-const embedder = OpenAIEmbedder.create()
+const embedder = OllamaEmbedder.create()
 const question = await embedder.embbed(q)
 
 /**
