@@ -4,8 +4,10 @@ import 'dotenv/config'
 
 import debug from 'debug'
 
-import {OpenAIEmbedder} from './embbeders/openai/index.js'
-import {PineconeProvider} from './vectorstores/Providers/Pinecone.js'
+import {OllamaEmbedder} from './embbeders/ollama/index.js'
+import {ChromaProvider} from './vectorstores/Providers/Chroma.js'
+// import {OpenAIEmbedder} from './embbeders/openai/index.js'
+// import {PineconeProvider} from './vectorstores/Providers/Pinecone.js'
 
 const log = debug('workshop:consumer:main')
 
@@ -19,11 +21,11 @@ const [, , ...args] = process.argv
  *     Ejemplo de uso: npm run start -- "¿ Como de altos son los precios de los pisos en Málaga ?"
  *
  * */
-const [input, namespace = '01H4RM2JD8QXE6N2Z7XFZPRZRD'] = args
+const [input] = args
 
-const provider = await PineconeProvider.create('chatbot', namespace)
+const provider = await ChromaProvider.create('chatbot')
 
-const embedder = OpenAIEmbedder.create()
+const embedder = OllamaEmbedder.create()
 
 /**
  * 2.- Recuerda aquí le pasamos la pregunta que queremos buscar y nos devuelve un vector de 1536 dimensiones.
@@ -37,6 +39,6 @@ const results = await provider.search(question)
 
 /**
  * 7.- Fijate en la salida de consola (Igual el modelo no es el mejor pero es lo que hay). El punto es que tenemos 4 parrafos de entre los 46 que teníamos que son
- *     semánticamente relevantes a la pregunta que le hemos pasado. ❤️❤️❤️❤️
+ *     semánticamente relevantes a la pregunta que le hemos pasado. ❤️ ❤️ ❤️ ❤️
  * */
 log(results)

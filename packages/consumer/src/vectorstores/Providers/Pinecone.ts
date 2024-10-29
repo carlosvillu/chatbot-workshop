@@ -19,21 +19,14 @@ export class PineconeProvider {
   static DOCS_BY_QUERY = 4
   static validate(index: string, namespace: string): void {
     if (typeof index !== 'string') {
-      throw new Error(
-        `[PineconeProvider.validate] Invalid index type ${typeof index}`
-      )
+      throw new Error(`[PineconeProvider.validate] Invalid index type ${typeof index}`)
     }
     if (typeof namespace !== 'string') {
-      throw new Error(
-        `[PineconeProvider.validate] Invalid namespace type ${typeof namespace}`
-      )
+      throw new Error(`[PineconeProvider.validate] Invalid namespace type ${typeof namespace}`)
     }
   }
 
-  static async create(
-    index: string,
-    namespace: string
-  ): Promise<PineconeProvider> {
+  static async create(index: string, namespace: string): Promise<PineconeProvider> {
     PineconeProvider.validate(index, namespace)
     const client = new PineconeClient()
     await client.init({
@@ -44,10 +37,7 @@ export class PineconeProvider {
     return new PineconeProvider(client.Index(index), namespace)
   }
 
-  constructor(
-    private readonly index: VectorOperationsApi,
-    private readonly namespace: string
-  ) {}
+  constructor(private readonly index: VectorOperationsApi, private readonly namespace: string) {}
 
   async search(question: Question): Promise<Results | null> {
     /**
