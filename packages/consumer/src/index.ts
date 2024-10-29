@@ -6,22 +6,26 @@ import readline from 'readline'
 
 import debug from 'debug'
 
-import {ChatOpenAI} from './chat/openai/index.js'
-import {OpenAIEmbedder} from './embbeders/openai/index.js'
-import {PineconeProvider} from './vectorstores/Providers/Pinecone.js'
+import {ChatOllama} from './chat/ollama/index.js'
+import {OllamaEmbedder} from './embbeders/ollama/index.js'
+import {ChromaProvider} from './vectorstores/Providers/Chroma.js'
+
+// import {ChatOpenAI} from './chat/openai/index.js'
+// import {OpenAIEmbedder} from './embbeders/openai/index.js'
+// import {PineconeProvider} from './vectorstores/Providers/Pinecone.js'
 
 const log = debug('workshop:consumer:main')
 
 const [, , ...args] = process.argv
-const [verbose, namespace = '01H4RM2JD8QXE6N2Z7XFZPRZRD'] = args
+const [verbose] = args
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 })
 
-const embedder = OpenAIEmbedder.create()
-const chat = ChatOpenAI.create({
+const embedder = OllamaEmbedder.create()
+const chat = ChatOllama.create({
   onToken(token) {
     process.stdout.write(token)
   },
@@ -33,7 +37,7 @@ const chat = ChatOpenAI.create({
     }
   }
 })
-const provider = await PineconeProvider.create('chatbot', namespace)
+const provider = await ChromaProvider.create('chatbot')
 
 log('\n🤘chat start\n')
 const loop = async (): Promise<void> => {
