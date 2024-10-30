@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "DEBUG=workshop:* NODE_NO_WARNINGS=1 node --loader ts-node/esm src/index.ts"
+    "start": "DEBUG=workshop:* NODE_NO_WARNINGS=1 node --loader ts-node/esm src/index.ts",
+    "start:server": "DEBUG=workshop:* NODE_NO_WARNINGS=1 node --loader ts-node/esm src/server.ts"
+
   },
   "dependencies": {
     "@pinecone-database/pinecone": "^0.1.6",
