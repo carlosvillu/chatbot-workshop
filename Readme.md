@@ -126,7 +126,7 @@ Create a chat interface that uses the RAG system to answer questions.
 ## Documentation
 
 The slides for this workshop are available at:
-https://docs.google.com/presentation/d/1QwgaD35z1KK7CqexYm5HWy2oezk_nK9Y_RcoM6Ej8oY/edit?usp=sharing
+[https://docs.google.com/presentation/d/1QwgaD35z1KK7CqexYm5HWy2oezk_nK9Y_RcoM6Ej8oY/edit?usp=sharing](https://docs.google.com/presentation/d/125PssUk4htf_m_K3a_EqzWZwp2cgQ-p8eUybsjFKwVg/edit?usp=sharing)
 
 ## Troubleshooting
 
