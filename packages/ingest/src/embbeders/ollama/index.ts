@@ -4,7 +4,11 @@ import type {Document} from '../../documents/Models/Document.js'
 import {Embedding} from '../Models/Embbeding.js'
 
 const chunk = <T>(arr: T[], size: number): T[][] =>
-  arr.reduce((acc: T[][], _, i) => (i % size !== 0 ? acc : [...acc, arr.slice(i, i + size)]), [])
+  arr.reduce(
+    (acc: T[][], _, i) =>
+      i % size !== 0 ? acc : [...acc, arr.slice(i, i + size)],
+    []
+  )
 const log = debug('workshop:ingest:Embbeders:OllamaEmbedder')
 
 export class OllamaEmbedder {
@@ -14,7 +18,9 @@ export class OllamaEmbedder {
 
   static validate(docs: Document[]): void {
     if (!Array.isArray(docs)) {
-      throw new Error(`[OllamaEmbedder.validate] Invalid docs type ${typeof docs}`)
+      throw new Error(
+        `[OllamaEmbedder.validate] Invalid docs type ${typeof docs}`
+      )
     }
   }
 
@@ -32,16 +38,19 @@ export class OllamaEmbedder {
     for (const docs of chunksOfDocs) {
       const embeddings = await Promise.all(
         docs.map(async (doc: Document) => {
-          const response = await fetch(`${OllamaEmbedder.HOST}/api/embeddings`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              model: OllamaEmbedder.MODEL,
-              prompt: 'search_document: ' + doc.text
-            })
-          })
+          const response = await fetch(
+            `${OllamaEmbedder.HOST}/api/embeddings`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                model: OllamaEmbedder.MODEL,
+                prompt: 'search_document: ' + doc.text
+              })
+            }
+          )
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`)

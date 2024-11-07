@@ -12,7 +12,9 @@ const log = debug('workshop:ingest:vectorstores:ChromaProvider')
 export class ChromaProvider {
   static validate(collection: string): void {
     if (typeof collection !== 'string') {
-      throw new Error(`[ChromaProvider.validate] Invalid collection type ${typeof collection}`)
+      throw new Error(
+        `[ChromaProvider.validate] Invalid collection type ${typeof collection}`
+      )
     }
   }
 
@@ -56,7 +58,9 @@ export class ChromaProvider {
         metadatas: records.map(r => r.metadata),
         documents: records.map(r => r.metadata.text)
       })
-      log(`💾 Saved ${records.length} vectors to collection ${this.collection.name}`)
+      log(
+        `💾 Saved ${records.length} vectors to collection ${this.collection.name}`
+      )
     } catch (error) {
       log(`❌ ${(error as Error).message}`)
     }

@@ -26,13 +26,18 @@ await fs.access(data).catch(() => {
 
 const docs = await TXTFolderLoader.create(data).loadAndSplit()
 
-const embedder = provider === 'ollama' ? OllamaEmbedder.create(docs) : OpenAIEmbedder.create(docs)
+const embedder =
+  provider === 'ollama'
+    ? OllamaEmbedder.create(docs)
+    : OpenAIEmbedder.create(docs)
 
 /**
  * 2.- Aquí va el nombre del Indice que ha de crear Chroma
  * */
 const vectorstore =
-  provider === 'ollama' ? await ChromaProvider.create('chatbot') : await PineconeProvider.create('chatbot')
+  provider === 'ollama'
+    ? await ChromaProvider.create('chatbot')
+    : await PineconeProvider.create('chatbot')
 
 for await (const embeddings of embedder.embeddings()) {
   /**
