@@ -26,7 +26,7 @@ export class ChatOllama extends EventEmitter {
    *     https://ollama.com/library/llama3.2
    *
    * */
-  static MODEL = 'llama3.1:8b'
+  static MODEL = 'nemotron-mini'
 
   /**
    * 5.- Y aquí tenemos al PROMPT !!! ( hay gente que gana un pastizal solo escribiendo estas cosas )
