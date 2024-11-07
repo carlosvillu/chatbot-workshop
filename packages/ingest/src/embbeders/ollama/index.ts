@@ -4,7 +4,11 @@ import type {Document} from '../../documents/Models/Document.js'
 import {Embedding} from '../Models/Embbeding.js'
 
 const chunk = <T>(arr: T[], size: number): T[][] =>
-  arr.reduce((acc: T[][], _, i) => (i % size !== 0 ? acc : [...acc, arr.slice(i, i + size)]), [])
+  arr.reduce(
+    (acc: T[][], _, i) =>
+      i % size !== 0 ? acc : [...acc, arr.slice(i, i + size)],
+    []
+  )
 const log = debug('workshop:ingest:Embbeders:OllamaEmbedder')
 
 export class OllamaEmbedder {
@@ -28,7 +32,9 @@ export class OllamaEmbedder {
 
   static validate(docs: Document[]): void {
     if (!Array.isArray(docs)) {
-      throw new Error(`[OllamaEmbedder.validate] Invalid docs type ${typeof docs}`)
+      throw new Error(
+        `[OllamaEmbedder.validate] Invalid docs type ${typeof docs}`
+      )
     }
   }
 
@@ -49,22 +55,25 @@ export class OllamaEmbedder {
           /**
            * 6.- Hacemos la petición al end point de Ollama. y obtenemos los embeddings de 10 en 10
            * */
-          const response = await fetch(`${OllamaEmbedder.HOST}/api/embeddings`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              /**
-               * 5.- Le indicamos a ollama que modelo debe hacer el embedding del texto
-               *     Este modelo necesita que usemos un prefix especial, para indicar la funcionalidad que le vamos a dar al embedding para
-               *     optimizarlo. En este caso al ser una aplicación RAG el prefijo tiene que ser "search_document"
-               *     más info: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5#task-instruction-prefixes
-               * */
-              model: OllamaEmbedder.MODEL,
-              prompt: 'search_document: ' + doc.text
-            })
-          })
+          const response = await fetch(
+            `${OllamaEmbedder.HOST}/api/embeddings`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                /**
+                 * 5.- Le indicamos a ollama que modelo debe hacer el embedding del texto
+                 *     Este modelo necesita que usemos un prefix especial, para indicar la funcionalidad que le vamos a dar al embedding para
+                 *     optimizarlo. En este caso al ser una aplicación RAG el prefijo tiene que ser "search_document"
+                 *     más info: https://huggingface.co/nomic-ai/nomic-embed-text-v1.5#task-instruction-prefixes
+                 * */
+                model: OllamaEmbedder.MODEL,
+                prompt: 'search_document: ' + doc.text
+              })
+            }
+          )
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`)

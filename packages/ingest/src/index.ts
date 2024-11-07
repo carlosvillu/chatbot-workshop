@@ -31,7 +31,10 @@ const docs = await TXTFolderLoader.create(data).loadAndSplit()
  *     Ahora vamos a generar los embeddings de cada documento. Para ello vamos a usar la clase `OllamaEmbedder` y usaremos
  *     modelo local cargado mediante OLLAMA (https://ollama.com/) [ VUELTA A LA SLIDES ]
  * */
-const embedder = provider === 'ollama' ? OllamaEmbedder.create(docs) : OpenAIEmbedder.create(docs)
+const embedder =
+  provider === 'ollama'
+    ? OllamaEmbedder.create(docs)
+    : OpenAIEmbedder.create(docs)
 
 /**
  *
