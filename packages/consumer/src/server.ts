@@ -13,7 +13,6 @@ const COOKIE_NAME = 'session_id'
 
 const {PORT = 2024} = process.env
 
-// Función auxiliar para parsear cookies
 function getCookie(
   cookieHeader: string | undefined,
   name: string
@@ -28,13 +27,25 @@ function getCookie(
 }
 
 const server = createServer(async (req, res) => {
+  // Añadir cabeceras CORS
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+
+  // Manejar preflight requests
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204)
+    res.end()
+    return
+  }
+
   if (req.method !== 'POST') {
     res.writeHead(405)
     res.end('Method Not Allowed')
     return
   }
 
-  // Obtener o crear sessionId desde la cookie
   let sessionId = getCookie(req.headers.cookie, COOKIE_NAME)
   const isNewSession = sessionId === undefined
   if (isNewSession) {
@@ -42,7 +53,6 @@ const server = createServer(async (req, res) => {
     log(`Creating new session: ${sessionId}`)
   }
 
-  // Leer el body
   let body = ''
   req.on('data', chunk => {
     body += chunk.toString() as string
@@ -57,12 +67,10 @@ const server = createServer(async (req, res) => {
         return
       }
 
-      // Obtener o crear chat para la sesión
       let chat = sessions.get(sessionId)
       if (chat === undefined) {
         chat = ChatOllama.create({
           onToken(token) {
-            // Escribir cada token directamente en la respuesta
             res.write(token)
           },
           onEnd() {
@@ -72,7 +80,6 @@ const server = createServer(async (req, res) => {
         sessions.set(sessionId, chat)
       }
 
-      // Procesar la pregunta
       const embedder = OllamaEmbedder.create()
       const provider = await ChromaProvider.create('chatbot')
 
@@ -85,15 +92,15 @@ const server = createServer(async (req, res) => {
         return
       }
 
-      // Configurar headers para streaming y establecer la cookie
       const headers: Record<string, string> = {
         'Content-Type': 'text/plain',
         'Transfer-Encoding': 'chunked'
       }
 
-      // Solo establecemos la cookie si es una nueva sesión
       if (isNewSession) {
-        headers['Set-Cookie'] = `${COOKIE_NAME}=${sessionId as string}; HttpOnly; Path=/; Max-Age=3600` // eslint-disable-line 
+        headers['Set-Cookie'] = `${COOKIE_NAME}=${
+          sessionId as string
+        }; HttpOnly; Path=/; Max-Age=3600`
       }
 
       res.writeHead(200, headers)
